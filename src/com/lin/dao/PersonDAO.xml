@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace映射文件的命名空间-->
+<mapper namespace="com.lin.dao.PersonDao">
+    <resultMap id="BaseResultMap" type="com.lin.entity.Person">
+        <!--id只有一个 column是数据库中的列名（下划线） property是实体类中属性（驼峰）-->
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="gender" property="gender"></result>
+        <result column="birthday" property="birthday"></result>
+        <result column="address" property="address"></result>
+        <result column="score" property="score"></result>
+    </resultMap>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from person
+    </select>
+</mapper>

@@ -11,7 +11,65 @@
         <result column="address" property="address"></result>
         <result column="score" property="score"></result>
     </resultMap>
+    <!--sql片段 可以隐藏字段-->
+    <sql id="allColumn">
+        id,name,gender,birthday,address
+    </sql>
+    <!--隐藏生日-->
+    <sql id="birthdayColumn">
+        id,name,gender,address
+    </sql>
+    <!--SQL语句全查 不带参数-->
     <select id="selectAll" resultMap="BaseResultMap">
         select * from person
     </select>
+    <!--SQL语句单查带参数 parameterType带一个参数：type类型（int String map set list）-->
+    <select id="selectBySex" resultMap="BaseResultMap" parameterType="int" >
+        select <include refid="birthdayColumn"></include> from person where gender = #{sex}
+    </select>
+    <!--查总条数 resultType返回值类型-->
+    <select id="selectCount" resultType="java.lang.Long">
+        select count(*) from person
+    </select>
+    <!--查询女生总条数并且分数>100-->
+    <select id="selectByss01" resultType="java.lang.Long" parameterType="com.lin.entity.Person">
+        select count(*) from person where gender = #{gender} and score > #{score}
+    </select>
+    <!--查询女生且生日>2020-09-07的人 多表parameterType是map-->
+    <select id="selectBysb01" resultMap="BaseResultMap" parameterType="map">
+    <![CDATA[select * from person where gender = #{gender} and birthday < #{birthday}]]>
+    </select>
+    <!--查询 分值最高的人是谁 ？-->
+    <select id="selectBys" resultMap="BaseResultMap">
+        select * from person where score=(select max(score) from person)
+    </select>
+    <!--所有女生男生的平均分值是多少 分组查询 实体类 -->
+    <select id="selectByavg" resultType="com.lin.entity.PersonDTO">
+        select gender,avg(score) as avgScore from person group by gender
+    </select>
+    <!--所有女生男生的平均分值是多少并且分数>200 有参数分数查询 -->
+    <select id="selectByavg02" resultType="com.lin.entity.PersonDTO" parameterType="int">
+        select gender,avg(score) as avgScore from person group by gender HAVING avg(score) > #{score}
+    </select>
+    <!--所有女生男生的平均分值是多少并且分数>200 有参数分数查询 map-->
+    <select id="selectByavg03" resultType="map" parameterType="int">
+         select gender,avg(score) as avgScore from person group by gender HAVING avg(score) > #{score}
+    </select>
+    <!--查询姓孙的 模糊查询 使用$拼接 sql编译的时候没有？ 有sql注入的风险-->
+    <select id="selectByName" resultMap="BaseResultMap" parameterType="string">
+        select * from person where name like '${name}%'
+    </select>
+    <!--查询姓孙的 模糊查询 concat 可编译-->
+    <select id="selectByName02" resultMap="BaseResultMap" parameterType="string">
+        select * from person where name like concat ('%',#{name},'%')
+    </select>
+    <select id="selectByName03" resultMap="BaseResultMap" parameterType="string">
+        select * from person where name like "%"#{name}"%"
+    </select>
+
+    <insert id="insertPerson" parameterType="com.lin.entity.Person">
+        insert into person(id,name,gender,birthday,address,score)
+        values (null,#{name},#{gender},#{birthday},#{address},#{score})
+    </insert>
+
 </mapper>

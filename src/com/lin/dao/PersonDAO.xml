@@ -63,13 +63,80 @@
     <select id="selectByName02" resultMap="BaseResultMap" parameterType="string">
         select * from person where name like concat ('%',#{name},'%')
     </select>
+    <!--模糊查询-->
     <select id="selectByName03" resultMap="BaseResultMap" parameterType="string">
         select * from person where name like "%"#{name}"%"
     </select>
-
+    <!--增加-->
     <insert id="insertPerson" parameterType="com.lin.entity.Person">
+--         selectKey 一般多表级联插入的时候 需要获取刚刚插入数据主键id的时候用到
+--        keyProperty 主键id order 自增的主键是数据插之前诞生还是之后的女生 mysql之后 oracle之后
+--         resultType 主键id的类型 一般int 分布式String 还有一个雪花算法
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            select LAST_INSERT_ID()
+        </selectKey>
         insert into person(id,name,gender,birthday,address,score)
         values (null,#{name},#{gender},#{birthday},#{address},#{score})
     </insert>
+    <!--删除-->
+    <delete id="delPersonById">
+        delete from person where id=#{id}
+    </delete>
 
+    <!--动态sql之动态查询 通俗讲就是select+if-->
+    <!--动态sql有9个-->
+    <!--where 1.删除了第一个and 2.代替了原始where 3.where常和if搭配-->
+    <!--where需要把方法里的参数（map 实体类）属性写全-->
+    <!--if的注意事项 if标签是实体类中驼峰 if中是sql _ -->
+    <select id="dongtaiselect" resultMap="BaseResultMap" parameterType="com.lin.entity.Person">
+        select * from person p
+        <where>
+            <if test="id != null and id != ''">
+                p.id=#{id}
+            </if>
+            <if test="name != null and name != ''">
+              and p.name=#{name}
+            </if>
+            <if test="gender != null and gender != ''">
+               and p.gender=#{gender}
+            </if>
+            <if test="birthday != null and birthday != ''">
+               and p.birthday=#{birthday}
+            </if>
+            <if test="address != null and address != ''">
+               and p.address=#{address}
+            </if>
+            <if test="score != null and score != ''">
+               and p.score>#{score}
+            </if>
+        </where>
+    </select>
+    <!--动态修改-->
+    <update id="dongtaiupdate" parameterType="com.lin.entity.Person">
+          update person p<set>
+        <if test="name != null and name != ''">
+             p.name=#{name},
+        </if>
+        <if test="gender != null and gender != ''">
+             p.gender=#{gender},
+        </if>
+        <if test="birthday != null">
+             p.birthday=#{birthday},
+        </if>
+        <if test="address != null and address != ''">
+             p.address=#{address},
+        </if>
+        <if test="score != null and score != ''">
+             p.score>#{score}
+        </if>
+    </set>
+    where p.id=#{id}
+    </update>
+    <!--批量删除-->
+    <delete id="dongtaidelete" parameterType="map">
+        delete from person where id in
+        <foreach collection="ids" open="(" item="id" separator="," close=")" index="index">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

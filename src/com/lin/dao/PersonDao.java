@@ -37,4 +37,33 @@ public interface PersonDao {
 
     //增加
     int insertPerson(Person person);
+
+    //删除
+    // 之后讲解动态SQL dao层只有基础类型 int String 不方便执行动态sql
+    //以后自己写代码 参数一定是一个实体类或者map或者DTO
+    int delPersonById(int id);
+
+    //动态sql(重点) 一条xml中的语句可以实现N多查询。
+    //要实现多种查询有一个硬性条件--参数要多
+    //1.放弃单个属性（int string）改用实体类 2.参数改用map
+
+    //第一类 特征 返回值-正常的结果集person类  都是select * from person开头
+    //1.1 select * from person  if where没参数 就是全查
+    //1.2 select from person where gender = 2  if where后面是gender 那就是单查gender
+    //1.3 select * from person where gender = #{gender} and birthday < #{birthday}
+    //1.4 select * from person where name like '${name}%'
+    //1-4 可以合成一条 只需要把后面的参数做一个if判断
+    List<Person> dongtaiselect(Person person); //动态sql如果参数不是实体类或集合 是个空参 那么没有任何意义
+    //返回值是list<实体类> 参数也是同样的实体类 这是一个典型的动态sql语句
+
+    //第二类 特征 返回值-一个数 单行单例 非person实体类 是一个数据类型  都是select count(*)from person开头
+    //2.1 select count(*) from person
+    //2.2 select count(*) from person where gender = 2 and score > 100
+
+    //动态修改
+    int dongtaiupdate(Person person);
+
+    //批量删除
+    void dongtaidelete(Map map);
+
 }

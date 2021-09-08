@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 mybatis执行流程：1.导包 2.连接数据库 3.sqlSessionFactory调用sqlSession 4.sqlession可以调用对象
@@ -128,7 +125,7 @@ public class MybatisTest {
         sqlSession.close();
     }
 
-    //查询姓孙的 模糊查询 $ xxx
+    //查询姓孙的 模糊查询
     @Test
     public void test10(){
         //There is no getter for property named 'name' in 'class java.lang.String' 因为$是拼接的 getter没有这个概念 #有
@@ -142,6 +139,7 @@ public class MybatisTest {
         sqlSession.close();
     }
 
+    ////查询姓孙的 模糊查询 concat
     @Test
     public void test11(){
         List<Person> personList = sqlSession.selectList("com.lin.dao.PersonDao.selectByName02", "孙");
@@ -150,7 +148,7 @@ public class MybatisTest {
         }
         sqlSession.close();
     }
-
+    //模糊查询 常用
     @Test
     public void test12(){
         List<Person> personList = sqlSession.selectList("com.lin.dao.PersonDao.selectByName03", "孙");
@@ -160,6 +158,7 @@ public class MybatisTest {
         sqlSession.close();
     }
 
+    //增加
     @Test
     public void test13(){
         Person person = new Person();
@@ -174,5 +173,56 @@ public class MybatisTest {
         sqlSession.commit();
         sqlSession.close();
     }
+
+    //删除
+    @Test
+    public void test14(){
+        int delete = sqlSession.delete("com.lin.dao.PersonDao.delPersonById", 13);
+        System.out.println("delete = " + delete);
+        sqlSession.commit();
+        sqlSession.close();
     }
 
+    //动态查询
+    @Test
+    public void test15(){
+        Person person = new Person();
+       // person.setId(17);
+        person.setScore(200);
+        person.setGender(2);
+        List<Person> personList = sqlSession.selectList("com.lin.dao.PersonDao.dongtaiselect", person);
+      //全查  List<Person> personList = sqlSession.selectList("com.lin.dao.PersonDao.dongtaiselect", null);
+        for (Person person1 : personList) {
+            System.out.println("person1 = " + person1);
+        }
+        sqlSession.close();
+    }
+
+    //动态修改
+    @Test
+    public void test16(){
+        Person person = new Person();
+        person.setId(1);
+        person.setAddress("郑州");
+        person.setBirthday(new Date());
+        int update = sqlSession.update("com.lin.dao.PersonDao.dongtaiupdate", person);
+        System.out.println("update = " + update);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    //批量删除
+    @Test
+    public void test17(){
+        //构造ids
+        List<Integer> idList=new ArrayList<>();
+        idList.add(1);
+        idList.add(14);
+        Map map = new HashMap();
+        map.put("ids",idList);
+        int delete = sqlSession.delete("com.lin.dao.PersonDao.dongtaidelete", map);
+        System.out.println("delete = " + delete);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+}

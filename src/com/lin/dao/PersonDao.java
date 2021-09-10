@@ -66,4 +66,11 @@ public interface PersonDao {
     //批量删除
     void dongtaidelete(Map map);
 
+    //一对多 方法写在一方 在实体类赋值集合
+    List<Person> selectOrderByPersonId(Integer id);
+    //一对多  方法1： 写在1方  改成动态sql 按id,name 都可以查
+
+    List<Person> selectByin(Map map);
+
+
 }

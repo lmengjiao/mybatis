@@ -1,5 +1,4 @@
-import com.lin.entity.Person;
-import com.lin.entity.PersonDTO;
+import com.lin.entity.*;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -225,4 +224,178 @@ public class MybatisTest {
         sqlSession.commit();
         sqlSession.close();
     }
+
+    //count(*)
+    @Test
+    public void test18(){
+        HumanExample example = new HumanExample();
+        HumanExample.Criteria criteria=example.createCriteria(); //用例子类实现查询的规则
+        //当example的criteria不用赋值的时候 SQL=select * from human;
+        //SQL=select * from human where gender=2;
+        //criteria.andGenderEqualTo(2);
+        //SQL=select * from human where gender=2 and address='西京';
+        //criteria.andAddressEqualTo("西京");
+        //模糊查询 西京的人有几个
+       // criteria.andAddressLike("%"+"西京"+"%");
+        //查询家住在北京或者or分数是555 不同类型
+        //example.or().andAddressEqualTo("北京");
+        //example.or().andScoreEqualTo(555.0);
+        //查询id=1 or =4 or =5  同类型
+        List<Integer> ids=new ArrayList<>();
+        ids.add(1);
+        ids.add(4);
+        ids.add(5);
+        criteria.andIdIn(ids);
+        Object o = sqlSession.selectOne("com.lin.dao.HumanDAO.countByExample", example);
+        System.out.println("o = " + o);
+        sqlSession.close();
+    }
+
+    //*
+    @Test
+    public void test19(){
+        //全查
+        HumanExample example = new HumanExample();
+        HumanExample.Criteria criteria = example.createCriteria(); //规则
+        //女性
+        //criteria.andGenderEqualTo(2);
+        //lect * from human where gender = 1;
+       // criteria.andGenderEqualTo(1);
+        //lect * from human where id = 1;
+       // criteria.andIdEqualTo(1);
+        //lect * from human where score > 100;
+        //criteria.andScoreGreaterThan(100.0);
+        //lect * from human where score > 100 and gender = 1;
+//        criteria.andScoreGreaterThan(100.0);
+//        criteria.andGenderEqualTo(1);
+        //lect * from human where score > 100 and gender = 1 and address like "%西京%";
+        criteria.andScoreGreaterThan(100.0);
+        criteria.andGenderEqualTo(1);
+        criteria.andAddressLike("%"+"西京"+"%");
+        List<Human> humans = sqlSession.selectList("com.lin.dao.HumanDAO.selectByExample", example);
+        for (Human human : humans) {
+            System.out.println("human = " + human);
+        }
+        sqlSession.close();
+    }
+
+    //动态增加
+    @Test
+    public void test20(){
+        Human human = new Human();
+        human.setName("林甜甜");
+        human.setGender(2);
+        human.setAddress("开封");
+        int insert = sqlSession.insert("com.lin.dao.HumanDAO.insertSelective", human);
+        System.out.println("insert = " + insert);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    //按主键删除
+    @Test
+    public void test21(){
+        int delete = sqlSession.delete("com.lin.dao.HumanDAO.deleteByPrimaryKey", 1);
+        System.out.println("delete = " + delete);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    //按条件删除
+    //删除分数小于20的女生
+    @Test
+    public void test22(){
+        HumanExample example = new HumanExample();
+        HumanExample.Criteria criteria = example.createCriteria();
+        criteria.andGenderEqualTo(2);
+        criteria.andScoreLessThan(20.0);
+        int delete = sqlSession.delete("com.lin.dao.HumanDAO.deleteByExample", example);
+        System.out.println("delete = " + delete);
+        sqlSession.commit();
+        sqlSession.commit();
+    }
+
+    //按主键id修改一个对象
+    @Test
+    public void test23(){
+        Human human = new Human();
+        human.setId(4);
+        human.setName("孙大圣");
+        int update = sqlSession.update("com.lin.dao.HumanDAO.updateByPrimaryKeySelective", human);
+        System.out.println("update = " + update);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+    //批量的动态修改
+    //不能测试
+    @Test
+    public void test24(){
+        HumanExample example = new HumanExample();
+        HumanExample.Criteria criteria = example.createCriteria();
+        sqlSession.update("com.lin.dao.HumanDAO.updateByExampleSelective",example);
+    }
+    
+    //按主键id查
+    @Test
+    public void test25(){
+        Human o = sqlSession.selectOne("com.lin.dao.HumanDAO.selectByPrimaryKey", 4);
+        System.out.println("o = " + o);
+        sqlSession.close();
+    }
+
+    //动态查询
+    //查询分数>100并且生日>2020-11-04并且是女生
+    @Test
+    public void test26() throws ParseException {
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse("2020-11-04");
+        HumanExample example = new HumanExample();
+        HumanExample.Criteria criteria = example.createCriteria();
+        criteria.andScoreGreaterThan(100.0);
+        criteria.andBirthdayGreaterThan(date);
+        criteria.andGenderEqualTo(2);
+        List<Human> humans = sqlSession.selectList("com.lin.dao.HumanDAO.selectByExample", example);
+        for (Human human : humans) {
+            System.out.println("human = " + human);
+        }
+        sqlSession.close();
+    }
+    
+    //一对多
+    @Test
+    public void test27(){
+        List<Person> personList = sqlSession.selectList("com.lin.dao.PersonDao.selectOrderByPersonId", 2);
+        for (Person person : personList) {
+            System.out.println("person = " + person);
+        }
+        sqlSession.close();
+    }
+
+    //一对多  方法1： 写在1方  改成动态sql 按id,name 都可以查
+    @Test
+    public void test28(){
+        Map map=new HashMap();
+        //map.put("id",2);
+        map.put("name","策策");
+        List<Person> personList = sqlSession.selectList("com.lin.dao.PersonDao.selectByin", map);
+        for (Person person : personList) {
+            System.out.println("person = " + person);
+        }
+        sqlSession.close();
+    }
+
+    // 作业2： 写出两张表  city--- 郑州， 区表 中原区，管城区， 开发区， 写出 1 对多的动态sql
+    @Test
+    public void test29(){
+        Map map=new HashMap();
+        //map.put("cid",2);
+        map.put("cname","武汉");
+        List<City> cities = sqlSession.selectList("com.lin.dao.CityDAO.selectByin", map);
+        for (City city : cities) {
+            System.out.println("city = " + city);
+        }
+        sqlSession.close();
+    }
+
 }

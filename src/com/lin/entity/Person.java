@@ -1,6 +1,7 @@
 package com.lin.entity;
 
 import java.util.Date;
+import java.util.List;
 
 public class Person {
     private int id;
@@ -9,6 +10,8 @@ public class Person {
     private Date birthday;
     private String address;
     private int score;
+
+    private List<Orders> orderlist;
 
     @Override
     public String toString() {
@@ -19,6 +22,7 @@ public class Person {
                 ", birthday=" + birthday +
                 ", address='" + address + '\'' +
                 ", score=" + score +
+                ", orderlist=" + orderlist +
                 '}';
     }
 
@@ -68,5 +72,13 @@ public class Person {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public List<Orders> getOrderlist() {
+        return orderlist;
+    }
+
+    public void setOrderlist(List<Orders> orderlist) {
+        this.orderlist = orderlist;
     }
 }

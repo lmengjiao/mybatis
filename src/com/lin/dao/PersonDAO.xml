@@ -139,4 +139,37 @@
             #{id}
         </foreach>
     </delete>
+    <!--一对多 需要自己加resultMap标签-->
+    <resultMap id="selectpo" type="com.lin.entity.Person" extends="BaseResultMap">
+        <!--<id column="id" property="id"></id>-->
+        <!--<result column="name" property="name"></result>-->
+        <!--<result column="gender" property="gender"></result>-->
+        <!--<result column="birthday" property="birthday"></result>-->
+        <!--<result column="address" property="address"></result>-->
+        <!--<result column="score" property="score"></result>-->
+        <collection property="orderlist" ofType="com.lin.entity.Orders">
+            <id column="orders_id" jdbcType="INTEGER" property="ordersId" />
+            <result column="person_id" jdbcType="INTEGER" property="personId" />
+            <result column="total_price" jdbcType="DOUBLE" property="totalPrice" />
+            <result column="addr" jdbcType="VARCHAR" property="addr" />
+        </collection>
+    </resultMap>
+    <select id="selectOrderByPersonId" resultMap="selectpo" parameterType="int">
+        select* from person p,orders o where
+        p.id=o.person_id and p.id=#{p.id}
+    </select>
+    <!--一对多  方法1： 写在1方  改成动态sql 按id,name 都可以查-->
+    <select id="selectByin" resultMap="selectpo" parameterType="map">
+        select* from person p,orders o
+        <where>
+            p.id=o.person_id
+            <if test="id != null and id != ''">
+               and p.id=#{id}
+            </if>
+            <if test="name != null and name != ''">
+               and p.name=#{name}
+            </if>
+        </where>
+    </select>
+
 </mapper>

@@ -19,6 +19,8 @@
 
 	<!--映射map-->
 	<mappers>
-		<mapper resource="com/lin/dao/PersonDao.xml"></mapper>
+		<mapper resource="com/lin/dao/PersonDAO.xml"></mapper>
+		<mapper resource="com/lin/dao/HumanDAO.xml"></mapper>
+		<mapper resource="com/lin/dao/CityDAO.xml"></mapper>
 	</mappers>
 </configuration>
